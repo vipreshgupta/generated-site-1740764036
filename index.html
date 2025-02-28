@@ -1,0 +1,343 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A ChatGPT-powered query assistant for answering your questions.">
+    <meta name="keywords" content="ChatGPT, AI, assistant, query, questions, answers">
+    <title>ChatGPT Query Assistant</title>
+    <style>
+        /* CSS */
+        :root {
+            --primary-color: #2C3E50;
+            --secondary-color: #27AE60;
+            --background-color: #F5F5F5;
+            --accent-color: #E67E22;
+            --text-color: #333333;
+            --light-gray: #CCCCCC;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+            padding: 1rem;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .logo{
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            margin-right: 10px;
+        }
+
+        .hamburger-menu {
+            display: none;
+            cursor: pointer;
+        }
+
+        .bar {
+            width: 25px;
+            height: 3px;
+            background-color: #FFFFFF;
+            margin: 5px 0;
+            transition: 0.4s;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+        }
+
+        nav ul li {
+            margin: 0 15px;
+        }
+
+        nav a {
+            color: #FFFFFF;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--light-gray);
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .chat-container {
+            background-color: #FFFFFF;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 80%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            overflow-y: auto;
+            max-height: 300px;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+
+        .message {
+            margin: 5px 0;
+            padding: 8px 12px;
+            border-radius: 10px;
+            max-width: 70%;
+        }
+
+        .user-message {
+            background-color: var(--secondary-color);
+            color: #FFFFFF;
+            align-self: flex-end;
+        }
+
+        .ai-message {
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            align-self: flex-start;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            border-top: 1px solid var(--light-gray);
+            padding-top: 10px;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--light-gray);
+            border-radius: 5px;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        #send-button {
+            background-color: var(--accent-color);
+            color: #FFFFFF;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 16px;
+        }
+
+        #send-button:hover {
+            background-color: #D66E12;
+        }
+
+        .loading-indicator {
+            display: none;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--secondary-color);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: #FFFFFF;
+            text-align: center;
+            padding: 1rem;
+            margin-top: auto;
+        }
+
+        footer a {
+            color: #FFFFFF;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .hamburger-menu {
+                display: block;
+            }
+
+            nav {
+                display: none;
+                width: 100%;
+            }
+            .logo{
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            nav.active {
+                display: flex;
+            }
+
+            nav ul {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            nav ul li {
+                text-align: center;
+                margin: 10px 0;
+            }
+
+            .chat-container {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="https://picsum.photos/id/237/40/40" alt="Logo"  aria-label="Company Logo">
+        <h1>ChatGPT Query Assistant</h1>
+        </div>
+        
+        <div class="hamburger-menu" onclick="toggleMenu()">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#" aria-label="Go to Home">Home</a></li>
+                <li><a href="#" aria-label="View FAQs">FAQs</a></li>
+                <li><a href="#" aria-label="Contact Support">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="chat-container" role="log" aria-live="polite">
+            <div class="chat-messages" id="chat-messages">
+                </div>
+            <div class="input-container">
+                <label for="user-input" class="sr-only">Enter your query:</label>
+                <input type="text" id="user-input" placeholder="Type your query here..." aria-label="Type your query here">
+                <button id="send-button" onclick="sendMessage()" aria-label="Send Message">Send</button>
+            </div>
+            <div class="loading-indicator" id="loading-indicator">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <a href="#" aria-label="Privacy Policy">Privacy Policy</a>
+        <a href="#" aria-label="Terms of Service">Terms of Service</a>
+        <a href="#" aria-label="Contact Us">Contact Us</a>
+    </footer>
+
+    <script>
+        // JavaScript
+        function toggleMenu() {
+            const nav = document.querySelector('nav');
+            nav.classList.toggle('active');
+        }
+
+        async function sendMessage() {
+            const userInput = document.getElementById('user-input');
+            const chatMessages = document.getElementById('chat-messages');
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const userMessageText = userInput.value.trim();
+
+            if (!userMessageText) return;
+
+            // Display user message
+            appendMessage(userMessageText, 'user-message');
+            userInput.value = '';
+
+            // Show loading indicator
+            loadingIndicator.style.display = 'flex';
+
+            try {
+                // Simulate ChatGPT API call (replace with actual API call)
+                const aiResponse = await simulateChatGPTResponse(userMessageText);
+
+                // Display AI response
+                appendMessage(aiResponse, 'ai-message');
+            } catch (error) {
+                appendMessage('Sorry, there was an error processing your request.', 'ai-message');
+            } finally {
+                // Hide loading indicator
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        function appendMessage(messageText, messageType) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', messageType);
+            messageDiv.textContent = messageText;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the bottom
+        }
+
+        async function simulateChatGPTResponse(userMessage) {
+            // Simulate delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            // Simulate response
+            return `You said: "${userMessage}". This is a simulated response.`;
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+          const userInputField = document.getElementById('user-input');
+          userInputField.focus();
+        });
+    </script>
+</body>
+</html>
